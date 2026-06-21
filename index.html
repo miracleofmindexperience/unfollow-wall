@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unfollow Wall · Miracle of Mind</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Trirong:ital,wght@0,400;0,600;1,400;1,600&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --mom-black:#100d0a; --mom-black2:#171310; --mom-black3:#1e1a16;
+    --red:#ec1c2d;
+    --paper:#f4eee3; --ink:#171310;
+    --cream:#e8ddd0; --cream-dim:#dfd8ce; --muted:#9e968c;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1100px 760px at 72% -8%, #241d16 0%, var(--mom-black) 58%, #0b0907 100%);
+    color:var(--cream);
+    overflow:hidden; height:100vh; width:100vw; position:relative;
+  }
+  #stars{position:fixed; inset:0; z-index:0; display:block;}
+
+  /* ---- Title block (top-left) ---- */
+  #title{position:fixed; top:36px; left:46px; z-index:20;}
+  #title h1{
+    font-family:'Inter',sans-serif; font-weight:900;
+    color:var(--red); line-height:.9; letter-spacing:-2px;
+    font-size:clamp(40px,5vw,78px); text-transform:uppercase;
+  }
+  #prompt{display:flex; align-items:center; gap:14px; margin-top:16px;}
+  #prompt .imu{font-family:'Trirong',Georgia,serif; font-style:italic; font-weight:400; color:var(--cream); font-size:clamp(20px,2.2vw,32px);}
+  #prompt .arrow{width:clamp(26px,2.4vw,38px); height:auto; color:var(--red); transform:translateY(6px);}
+
+  /* ---- Join / QR (top-right) ---- */
+  #join{
+    position:fixed; top:36px; right:46px; z-index:20;
+    display:flex; align-items:center; gap:14px;
+    background:rgba(244,238,227,.05); border:1px solid rgba(228,222,212,.14);
+    border-radius:14px; padding:12px 16px; backdrop-filter:blur(5px);
+  }
+  #qr{width:104px; height:104px; background:var(--paper); border-radius:8px; padding:6px;}
+  #qr img,#qr canvas{display:block; width:100%; height:100%;}
+  #join .lbl{font-size:10px; letter-spacing:2.5px; text-transform:uppercase; color:var(--muted); font-weight:600;}
+  #join .code{font-family:'Inter',sans-serif; font-weight:800; font-size:30px; color:var(--cream); letter-spacing:4px; line-height:1.15;}
+  #join .url{font-size:11px; color:var(--muted); margin-top:3px;}
+  #joincap{
+    position:fixed; top:176px; right:46px; z-index:20; max-width:250px; text-align:right;
+    font-family:'Trirong',Georgia,serif; font-style:italic; font-size:16px; color:var(--cream-dim); line-height:1.35;
+    transition:opacity .5s;
+  }
+  #joincap.gone{opacity:0;}
+
+  /* ---- MoM logo (bottom-left) ---- */
+  #logo{position:fixed; bottom:32px; left:46px; z-index:20;}
+  #logo img{height:50px; width:auto; display:block; opacity:.95;}
+
+  /* ---- Collecting overlay (countdown + live count) ---- */
+  #collect{
+    position:fixed; left:0; right:0; bottom:58px; z-index:25; text-align:center;
+    transition:opacity .5s, transform .5s;
+  }
+  #collect.gone{opacity:0; transform:translateY(22px); pointer-events:none;}
+  #collect .cd{font-family:'Inter',sans-serif; font-weight:800; font-size:clamp(46px,6vw,82px); color:var(--cream); line-height:1; letter-spacing:1px; font-variant-numeric:tabular-nums;}
+  #collect .cd.urgent{color:var(--red);}
+  #collect .cnt{font-family:'Trirong',Georgia,serif; font-style:italic; font-size:clamp(18px,2vw,26px); color:var(--cream-dim); margin-top:8px; display:inline-block; transition:transform .16s ease;}
+  #collect.bump .cnt{transform:scale(1.2);}
+  #collect .sub{font-family:'Inter',sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:3px; font-size:12px; color:var(--muted); margin-top:12px;}
+
+  /* ---- Wall ---- */
+  #wall{
+    position:absolute; inset:0; z-index:10;
+    display:flex; flex-wrap:wrap; align-content:center; justify-content:center;
+    gap:24px 28px; padding:170px 48px 150px;
+  }
+  .card{
+    --rot:0deg;
+    font-family:'Inter',sans-serif; font-weight:800;
+    text-transform:uppercase; letter-spacing:.5px;
+    background:var(--paper); color:var(--ink);
+    padding:18px 30px; border-radius:4px;
+    box-shadow:0 18px 40px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.5);
+    max-width:620px; line-height:1.1;
+    transform:rotate(var(--rot));
+  }
+  .card.example{transform:rotate(var(--rot)) scale(.4); opacity:0; animation:pop .55s cubic-bezier(.2,1.3,.4,1) forwards;}
+  #wall.tier0 .card{font-size:56px;}
+  #wall.tier1 .card{font-size:45px;}
+  #wall.tier2 .card{font-size:35px; padding:15px 26px;}
+  #wall.tier3 .card{font-size:27px; padding:12px 20px;}
+
+  @keyframes pop{0%{opacity:0; transform:rotate(var(--rot)) scale(.4);} 100%{opacity:1; transform:rotate(var(--rot)) scale(1);}}
+
+  .card.reveal{opacity:0; animation:flyIn .75s cubic-bezier(.2,1.05,.3,1) forwards;}
+  @keyframes flyIn{
+    0%{opacity:0; transform:translate(var(--fx,0),var(--fy,-320px)) rotate(var(--spin,-30deg)) scale(.15); filter:blur(4px);}
+    60%{opacity:1; filter:blur(0);}
+    100%{opacity:1; transform:translate(0,0) rotate(var(--rot)) scale(1); filter:blur(0);}
+  }
+
+  .card.fade{transition:opacity .4s ease, transform .4s ease; opacity:0; transform:rotate(var(--rot)) scale(.85);}
+
+  .card.scatter{animation:scatter .85s cubic-bezier(.4,0,.7,.4) forwards;}
+  @keyframes scatter{
+    0%{opacity:1; transform:rotate(var(--rot)) scale(1); background:var(--paper); color:var(--ink);}
+    18%{background:var(--red); color:#fff; transform:rotate(var(--rot)) scale(1.06);}
+    100%{opacity:0; transform:translate(var(--dx,0),var(--dy,-400px)) rotate(var(--endspin,90deg)) scale(.25); filter:blur(9px); background:var(--red); color:#fff;}
+  }
+
+  #hint{
+    position:absolute; inset:0; z-index:9; display:flex; align-items:center; justify-content:center;
+    pointer-events:none; padding:160px 80px 0;
+    font-family:'Trirong',Georgia,serif; font-style:italic; font-size:26px; color:var(--muted); text-align:center;
+    transition:opacity .6s; opacity:0;
+  }
+  #hint.show{opacity:1;}
+
+  /* ---- Closing ---- */
+  #closing{
+    position:fixed; inset:0; z-index:40;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:20px; text-align:center; padding:40px;
+    background:radial-gradient(900px 700px at 50% 42%, rgba(30,26,22,.86) 0%, rgba(8,7,6,.92) 72%);
+    opacity:0; pointer-events:none; transition:opacity 1.2s ease;
+  }
+  #closing.show{opacity:1; pointer-events:auto;}
+  #closing .beat{opacity:0; transform:translateY(14px); transition:opacity 1.1s ease, transform 1.1s ease;}
+  #closing .beat.in{opacity:1; transform:none;}
+  #cl1{font-family:'Inter',sans-serif; font-weight:800; font-size:clamp(34px,4.4vw,58px); color:var(--cream); text-transform:uppercase; letter-spacing:-1px; line-height:1.05; max-width:16ch;}
+  #cl2{font-family:'Trirong',Georgia,serif; font-style:italic; font-size:clamp(28px,3.4vw,46px); color:var(--red);}
+  #cl3{font-family:'Inter',sans-serif; font-weight:600; font-size:clamp(20px,2.3vw,30px); color:var(--cream-dim); margin-top:8px; letter-spacing:.3px;}
+  #clLogo{height:clamp(54px,7vw,96px); width:auto; margin-top:6px;}
+
+  /* ---- Controls ---- */
+  #controls{
+    position:fixed; bottom:0; left:0; right:0; z-index:50;
+    display:flex; align-items:center; justify-content:center; gap:12px;
+    padding:16px; background:linear-gradient(transparent, rgba(8,7,6,.92));
+    transition:opacity .4s, transform .4s; opacity:0; transform:translateY(20px);
+  }
+  #controls.show{opacity:1; transform:none;}
+  #controls button{
+    font-family:'Inter',sans-serif; font-size:14px; font-weight:600;
+    color:var(--cream); background:rgba(244,238,227,.08);
+    border:1px solid rgba(228,222,212,.2); border-radius:10px;
+    padding:11px 20px; cursor:pointer; transition:.18s;
+  }
+  #controls button:hover{background:rgba(244,238,227,.16);}
+  #controls button:disabled{opacity:.35; cursor:default;}
+  #controls button.primary{background:var(--red); color:#fff; border-color:var(--red);}
+  #controls button.primary.pulse{animation:pulse 1.4s ease-in-out infinite;}
+  @keyframes pulse{50%{box-shadow:0 0 0 10px rgba(236,28,45,.2);}}
+  #controls .count{font-size:13px; color:var(--muted); margin-right:6px;}
+  #controls .hintkey{position:absolute; left:18px; font-size:11px; color:#5d564d;}
+
+  #toast{
+    position:fixed; bottom:84px; left:50%; transform:translateX(-50%);
+    background:rgba(16,13,10,.94); border:1px solid rgba(228,222,212,.2);
+    color:var(--cream); padding:10px 18px; border-radius:10px; font-size:13px;
+    opacity:0; transition:opacity .3s; z-index:60; pointer-events:none;
+  }
+  #toast.show{opacity:1;}
+</style>
+</head>
+<body>
+  <canvas id="stars"></canvas>
+
+  <div id="title">
+    <h1>Unfollow<br>Wall</h1>
+    <div id="prompt">
+      <span class="imu">I'm Unfollowing…</span>
+      <svg class="arrow" viewBox="0 0 40 60" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M30 6 C 30 34, 30 44, 14 50"/><path d="M6 40 L14 52 L24 44"/>
+      </svg>
+    </div>
+  </div>
+
+  <div id="join">
+    <div id="qr"></div>
+    <div>
+      <div class="lbl">Join &amp; add yours</div>
+      <div class="code" id="roomCode">····</div>
+      <div class="url" id="joinUrl">scan to begin</div>
+    </div>
+  </div>
+  <div id="joincap">Scan to add what you'd like to unfollow</div>
+
+  <div id="logo">
+    <img src="https://static.sadhguru.org/d/46272/1739879389-group-1597883432.png" alt="Miracle of Mind">
+  </div>
+
+  <div id="wall"></div>
+  <div id="hint"></div>
+
+  <div id="collect">
+    <div class="cd" id="cd">1:00</div>
+    <div class="cnt" id="cnt">0 added</div>
+    <div class="sub">until the wall reveals</div>
+  </div>
+
+  <div id="closing">
+    <div class="beat" id="cl1"></div>
+    <div class="beat" id="cl2"></div>
+    <div class="beat" id="cl3"></div>
+    <img class="beat" id="clLogo" src="https://static.sadhguru.org/d/46272/1739879389-group-1597883432.png" alt="Miracle of Mind">
+  </div>
+
+  <div id="controls">
+    <span class="hintkey">move mouse for controls · S start · R reveal · U unfollow all · N new · F fullscreen</span>
+    <span class="count" id="count">0 added</span>
+    <button id="btnStart" class="primary">Start timer</button>
+    <button id="btnReveal">Reveal now</button>
+    <button id="btnUnfollow" disabled>Unfollow All</button>
+    <button id="btnNew">New session</button>
+    <button id="btnFull">Fullscreen</button>
+  </div>
+
+  <div id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+const CFG = window.UNFOLLOW_CONFIG;
+const $ = s => document.querySelector(s);
+
+// ---- Starfield ----
+(function stars(){
+  const c=$("#stars"), x=c.getContext("2d"); let pts=[];
+  function size(){ c.width=innerWidth; c.height=innerHeight; build(); }
+  function build(){
+    const n=Math.round(c.width*c.height/5200); pts=[];
+    for(let i=0;i<n;i++){
+      const warm=Math.random()<0.16;
+      pts.push({x:Math.random()*c.width, y:Math.random()*c.height,
+        r:Math.random()*1.5+0.3, a:Math.random()*0.7+0.2,
+        tw:Math.random()*0.02+0.004, ph:Math.random()*6.28,
+        col:warm?[224,170,110]:[240,234,224]});
+    }
+  }
+  function draw(t){
+    x.clearRect(0,0,c.width,c.height);
+    for(const p of pts){
+      const a=p.a*(0.6+0.4*Math.sin(t*p.tw+p.ph));
+      x.beginPath(); x.arc(p.x,p.y,p.r,0,6.2832);
+      x.fillStyle=`rgba(${p.col[0]},${p.col[1]},${p.col[2]},${a})`; x.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  addEventListener("resize", size); size(); requestAnimationFrame(draw);
+})();
+
+// ---- Supabase ----
+let sb=null;
+const configured = CFG.SUPABASE_URL && !CFG.SUPABASE_URL.includes("PASTE_");
+if (configured) sb = supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
+
+// ---- Room code ----
+function newCode(){
+  const a="ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+  return Array.from({length:4},()=>a[Math.floor(Math.random()*a.length)]).join("");
+}
+let room = new URLSearchParams(location.search).get("room") || newCode();
+const submitUrl = new URL("submit.html", location.href).href + "?room=" + room;
+$("#roomCode").textContent = room;
+$("#joinUrl").textContent = new URL(submitUrl).host + " · #" + room;
+new QRCode($("#qr"), { text:submitUrl, width:104, height:104, correctLevel:QRCode.CorrectLevel.M });
+
+// ---- State ----
+let phase = "collect";          // collect -> revealed -> closed
+const pending = [];
+const seen = new Set();
+const wall = $("#wall");
+const rot = () => (Math.random()*10-5).toFixed(1)+"deg";
+function tier(n){ return n<=4?"tier0":n<=9?"tier1":n<=18?"tier2":"tier3"; }
+
+// ---- Teaser examples ----
+function seedExamples(){
+  wall.className = tier(CFG.EXAMPLES.length);
+  CFG.EXAMPLES.forEach(t=>{
+    const c=document.createElement("div");
+    c.className="card example"; c.style.setProperty("--rot",rot()); c.textContent=t;
+    wall.appendChild(c);
+  });
+}
+seedExamples();
+
+// ---- Live count ----
+function paintCollect(){
+  const n=pending.length;
+  $("#cnt").textContent = n===0 ? "Be the first to add yours" : (n+(n===1?" thing":" things")+" added");
+  $("#count").textContent = n+" added";
+  const cl=$("#collect"); cl.classList.add("bump"); setTimeout(()=>cl.classList.remove("bump"),180);
+}
+
+// ---- Incoming ----
+function incoming(id,text){
+  if(seen.has(id)) return; seen.add(id);
+  if(phase==="collect"){ pending.push({id,text}); paintCollect(); }
+  else if(phase==="revealed"){ addLate(text); }
+}
+async function load(){
+  if(!sb) return;
+  const {data}=await sb.from("submissions").select("id,text").eq("room",room).order("created_at",{ascending:true});
+  (data||[]).forEach(r=>incoming(r.id,r.text));
+}
+function subscribe(){
+  if(!sb) return;
+  sb.channel("wall:"+room)
+    .on("postgres_changes",{event:"INSERT",schema:"public",table:"submissions",filter:"room=eq."+room},
+      p=>incoming(p.new.id,p.new.text))
+    .subscribe();
+}
+load(); subscribe();
+if(!configured) toast("Supabase not configured — add your keys in config.js. Press R to preview the reveal.");
+
+// ---- Timer ----
+let timerInt=null, remain=CFG.TIMER_MINUTES*60, running=false;
+const fmt=s=>Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
+$("#cd").textContent=fmt(remain);
+function startTimer(){
+  if(running || phase!=="collect") return;
+  running=true; $("#btnStart").classList.remove("pulse");
+  $("#btnStart").disabled=true; $("#btnStart").textContent="Collecting…";
+  timerInt=setInterval(()=>{
+    remain--; $("#cd").textContent=fmt(Math.max(remain,0));
+    $("#cd").classList.toggle("urgent", remain<=10);
+    if(remain<=0){ clearInterval(timerInt); reveal(); }
+  },1000);
+}
+
+// ---- Reveal ----
+function reveal(){
+  if(phase!=="collect") return; phase="revealed";
+  clearInterval(timerInt); running=false;
+  $("#collect").classList.add("gone");
+  $("#btnReveal").disabled=true; $("#btnStart").disabled=true;
+  $("#btnUnfollow").disabled=false; $("#btnUnfollow").classList.add("pulse");
+  wall.querySelectorAll(".card").forEach(c=>c.classList.add("fade"));
+  setTimeout(()=>{ wall.innerHTML=""; renderReveal(pending); }, 420);
+}
+function renderReveal(items){
+  const n=items.length;
+  wall.className = tier(n);
+  if(n===0){ $("#hint").textContent="No one added anything this round."; $("#hint").classList.add("show"); $("#count").textContent="0 on the wall"; return; }
+  const stagger=Math.min(95, Math.max(35, Math.floor(2600/n)));
+  items.forEach((it,i)=>{
+    const c=document.createElement("div");
+    c.className="card reveal"; c.textContent=it.text;
+    c.style.setProperty("--rot",rot());
+    c.style.setProperty("--fx",(Math.random()*900-450).toFixed(0)+"px");
+    c.style.setProperty("--fy",((Math.random()<.5?-1:1)*(Math.random()*320+260)).toFixed(0)+"px");
+    c.style.setProperty("--spin",(Math.random()*80-40).toFixed(0)+"deg");
+    c.style.animationDelay=(i*stagger)+"ms";
+    wall.appendChild(c);
+  });
+  $("#count").textContent=n+" on the wall";
+}
+function addLate(text){
+  const c=document.createElement("div");
+  c.className="card reveal"; c.textContent=text;
+  c.style.setProperty("--rot",rot());
+  c.style.setProperty("--fx",(Math.random()*900-450).toFixed(0)+"px");
+  c.style.setProperty("--fy",(-(Math.random()*320+260)).toFixed(0)+"px");
+  c.style.setProperty("--spin",(Math.random()*80-40).toFixed(0)+"deg");
+  wall.appendChild(c);
+  wall.className = tier(wall.querySelectorAll(".card").length);
+  $("#count").textContent=wall.querySelectorAll(".card").length+" on the wall";
+}
+
+// ---- Unfollow All ----
+function unfollowAll(){
+  if(phase==="collect"){ reveal(); return; }
+  if(phase!=="revealed") return; phase="closed";
+  $("#btnUnfollow").classList.remove("pulse"); $("#btnUnfollow").disabled=true;
+  const cards=[...wall.querySelectorAll(".card")];
+  const cx=innerWidth/2, cy=innerHeight/2, dist=Math.max(innerWidth,innerHeight)*0.75;
+  cards.forEach((c,i)=>{
+    const r=c.getBoundingClientRect();
+    let dx=(r.left+r.width/2)-cx, dy=(r.top+r.height/2)-cy;
+    const len=Math.hypot(dx,dy)||1;
+    c.style.setProperty("--dx",(dx/len*dist).toFixed(0)+"px");
+    c.style.setProperty("--dy",(dy/len*dist).toFixed(0)+"px");
+    c.style.setProperty("--endspin",(Math.random()*160-80).toFixed(0)+"deg");
+    c.style.animationDelay=(i*55)+"ms";
+    c.classList.remove("reveal"); c.classList.add("scatter");
+  });
+  setTimeout(()=>{ wall.innerHTML=""; showClosing(); }, cards.length*55+1000);
+}
+function showClosing(){
+  $("#cl1").textContent=CFG.CLOSING.line1;
+  $("#cl2").textContent=CFG.CLOSING.line2;
+  $("#cl3").textContent=CFG.CLOSING.line3;
+  $("#closing").classList.add("show");
+  setTimeout(()=>$("#cl1").classList.add("in"),600);
+  setTimeout(()=>$("#cl2").classList.add("in"),3200);
+  setTimeout(()=>$("#cl3").classList.add("in"),6200);
+  setTimeout(()=>$("#clLogo").classList.add("in"),7100);
+}
+
+// ---- New session ----
+async function newSession(){ if(sb) await sb.from("submissions").delete().eq("room",room); location.search=""; }
+
+// ---- Controls ----
+const controls=$("#controls"); let hideT=null;
+function showControls(){ controls.classList.add("show"); clearTimeout(hideT); hideT=setTimeout(()=>controls.classList.remove("show"),3500); }
+document.addEventListener("mousemove",showControls);
+function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),4200); }
+
+$("#btnStart").onclick=startTimer;
+$("#btnReveal").onclick=reveal;
+$("#btnUnfollow").onclick=unfollowAll;
+$("#btnNew").onclick=()=>{ if(confirm("Clear the wall and start a new session?")) newSession(); };
+$("#btnFull").onclick=()=> document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+document.addEventListener("keydown",e=>{
+  if(e.target.tagName==="INPUT") return;
+  const k=e.key.toLowerCase();
+  if(k==="s"||k===" "){ e.preventDefault(); startTimer(); }
+  else if(k==="r") reveal();
+  else if(k==="u") unfollowAll();
+  else if(k==="n"){ if(confirm("Clear the wall and start a new session?")) newSession(); }
+  else if(k==="f") $("#btnFull").click();
+});
+showControls();
+</script>
+</body>
+</html>

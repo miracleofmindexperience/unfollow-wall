@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Unfollow Wall · Miracle of Mind</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Trirong:ital,wght@0,400;0,600;1,400;1,600&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{ --mom-black:#100d0a; --red:#ec1c2d; --paper:#f4eee3; --ink:#171310; --cream:#e8ddd0; --muted:#9e968c; }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(700px 520px at 50% -10%, #241d16 0%, var(--mom-black) 62%, #0b0907 100%);
+    color:var(--cream); min-height:100vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:28px; text-align:center; position:relative; overflow:hidden;
+  }
+  #stars{position:fixed; inset:0; z-index:0;}
+  .wrap{width:100%; max-width:440px; position:relative; z-index:10;}
+
+  h1{font-family:'Inter',sans-serif; font-weight:900; text-transform:uppercase; color:var(--red);
+     font-size:40px; line-height:.9; letter-spacing:-1.5px; margin-bottom:8px;}
+  .room{font-size:11px; letter-spacing:3px; text-transform:uppercase; color:var(--muted); font-weight:600; margin-bottom:26px;}
+  .prompt{font-family:'Trirong',Georgia,serif; font-style:italic; font-size:25px; line-height:1.35; margin-bottom:8px; color:var(--cream);}
+  .hint{font-size:13px; color:var(--muted); margin-bottom:20px;}
+
+  textarea{
+    width:100%; height:120px; resize:none;
+    font-family:'Inter',sans-serif; font-weight:800; text-transform:uppercase; letter-spacing:.5px;
+    font-size:22px; line-height:1.2; color:var(--ink);
+    background:var(--paper); border:none; border-radius:8px; padding:18px 20px;
+    box-shadow:0 16px 34px rgba(0,0,0,.5);
+  }
+  textarea::placeholder{color:#b8ad9c; text-transform:none; font-weight:500; letter-spacing:0;}
+  textarea:focus{outline:3px solid var(--red);}
+  .counter{font-size:12px; color:var(--muted); text-align:right; margin:8px 4px 0;}
+
+  button{
+    width:100%; margin-top:16px;
+    font-family:'Inter',sans-serif; font-size:17px; font-weight:800; text-transform:uppercase; letter-spacing:1px;
+    color:#fff; background:var(--red); border:none; border-radius:12px; padding:16px; cursor:pointer; transition:.18s;
+  }
+  button:disabled{opacity:.5;}
+  button:active{transform:scale(.98);}
+  .err{color:#ff8e8e; font-size:14px; min-height:18px; margin-top:10px;}
+
+  .form.hide{display:none;}
+  .done{display:none;}
+  .done.show{display:block; animation:fade .5s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(8px);} to{opacity:1;}}
+  .check{font-size:46px; color:var(--red); margin-bottom:10px;}
+  .done p{font-family:'Trirong',Georgia,serif; font-style:italic; font-size:20px; color:var(--cream); line-height:1.5; margin-bottom:22px;}
+  .again{background:transparent; color:var(--cream); border:1px solid rgba(228,222,212,.3);}
+
+  #logo{margin-top:36px; position:relative; z-index:10;}
+  #logo img{height:42px; width:auto; opacity:.9;}
+</style>
+</head>
+<body>
+  <canvas id="stars"></canvas>
+  <div class="wrap">
+    <h1>Unfollow<br>Wall</h1>
+    <div class="room" id="room"></div>
+
+    <div class="form" id="form">
+      <div class="prompt" id="prompt"></div>
+      <div class="hint" id="hint"></div>
+      <textarea id="text" maxlength="80" placeholder="I'd like to unfollow…" autofocus></textarea>
+      <div class="counter"><span id="count">0</span>/80</div>
+      <button id="send">Unfollow it</button>
+      <div class="err" id="err"></div>
+    </div>
+
+    <div class="done" id="done">
+      <div class="check">✦</div>
+      <p>It's in. Look up at the wall<br>when the timer ends.</p>
+      <button class="again" id="again">Add another</button>
+    </div>
+  </div>
+
+  <div id="logo">
+    <img src="https://static.sadhguru.org/d/46272/1739879389-group-1597883432.png" alt="Miracle of Mind">
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+const CFG=window.UNFOLLOW_CONFIG, $=s=>document.querySelector(s);
+const room=(new URLSearchParams(location.search).get("room")||"default").toUpperCase();
+
+(function(){
+  const c=$("#stars"),x=c.getContext("2d"); let pts=[];
+  function size(){ c.width=innerWidth; c.height=innerHeight;
+    const n=Math.round(c.width*c.height/6000); pts=[];
+    for(let i=0;i<n;i++){ const warm=Math.random()<0.16;
+      pts.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.4+0.3,a:Math.random()*0.7+0.2,col:warm?[224,170,110]:[240,234,224]}); }
+  }
+  function draw(){ x.clearRect(0,0,c.width,c.height);
+    for(const p of pts){ x.beginPath(); x.arc(p.x,p.y,p.r,0,6.2832); x.fillStyle=`rgba(${p.col[0]},${p.col[1]},${p.col[2]},${p.a})`; x.fill(); }
+  }
+  addEventListener("resize",()=>{size();draw();}); size(); draw();
+})();
+
+$("#room").textContent="#"+room;
+$("#prompt").textContent=CFG.SUBMIT_PROMPT;
+$("#hint").textContent=CFG.SUBMIT_HINT;
+
+const configured=CFG.SUPABASE_URL && !CFG.SUPABASE_URL.includes("PASTE_");
+const sb=configured ? supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_ANON_KEY) : null;
+
+const ta=$("#text");
+ta.addEventListener("input",()=>$("#count").textContent=ta.value.length);
+
+async function send(){
+  const text=ta.value.trim(); $("#err").textContent="";
+  if(!text){ $("#err").textContent="Type one thing first."; return; }
+  if(!sb){ $("#err").textContent="Not connected — ask the host to set up Supabase."; return; }
+  $("#send").disabled=true; $("#send").textContent="Sending…";
+  const {error}=await sb.from("submissions").insert({room,text});
+  if(error){ $("#err").textContent="Couldn't send. Try again."; $("#send").disabled=false; $("#send").textContent="Unfollow it"; return; }
+  $("#form").classList.add("hide"); $("#done").classList.add("show");
+}
+$("#send").onclick=send;
+ta.addEventListener("keydown",e=>{ if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); send(); }});
+$("#again").onclick=()=>{ ta.value=""; $("#count").textContent="0"; $("#send").disabled=false; $("#send").textContent="Unfollow it"; $("#done").classList.remove("show"); $("#form").classList.remove("hide"); ta.focus(); };
+</script>
+</body>
+</html>
