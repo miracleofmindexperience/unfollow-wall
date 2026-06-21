@@ -30,9 +30,9 @@
     color:var(--red); line-height:.9; letter-spacing:-2px;
     font-size:clamp(40px,5vw,78px); text-transform:uppercase;
   }
-  #prompt{display:flex; align-items:center; gap:14px; margin-top:16px;}
+  #prompt{display:flex; align-items:flex-start; gap:18px; margin-top:18px;}
   #prompt .imu{font-family:'Trirong',Georgia,serif; font-style:italic; font-weight:400; color:var(--cream); font-size:clamp(20px,2.2vw,32px);}
-  #prompt .arrow{width:clamp(30px,2.8vw,42px); height:auto; color:var(--red); overflow:visible; flex:none; transform:translateY(4px);}
+  #prompt .arrow{height:clamp(60px,7vw,90px); width:auto; color:var(--red); overflow:visible; flex:none; transform:translateY(-2px);}
 
   /* ---- Join / QR (top-right) ---- */
   #join{
@@ -171,8 +171,9 @@
     <h1>Unfollow<br>Wall</h1>
     <div id="prompt">
       <span class="imu">I'm Unfollowing…</span>
-      <svg class="arrow" viewBox="0 0 48 74" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M34 8 C 34 40, 34 52, 18 58"/><path d="M9 47 L18 60 L29 51"/>
+      <svg class="arrow" viewBox="0 0 120 230" fill="none" stroke="currentColor" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M64 16 C 114 54, 104 130, 60 168"/>
+        <polygon points="30,210 81,183 39,153" fill="currentColor" stroke="none"/>
       </svg>
     </div>
   </div>
