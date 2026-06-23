@@ -65,9 +65,13 @@
     transition:opacity .5s, transform .5s;
   }
   #collect.gone{opacity:0; transform:translateY(22px); pointer-events:none;}
-  #collect .cd-row{display:flex; align-items:center; justify-content:center; gap:16px; color:var(--cream);}
-  #collect .clock{height:clamp(34px,4.4vw,60px); width:auto; flex:none;}
-  #collect .cd{font-family:'Inter',sans-serif; font-weight:800; font-size:clamp(46px,6vw,82px); line-height:1; letter-spacing:1px; font-variant-numeric:tabular-nums;}
+  #collect .cd-row{display:flex; align-items:flex-start; justify-content:center; gap:16px; color:var(--cream);}
+  #collect .clock{height:clamp(34px,4.4vw,60px); width:auto; flex:none; margin-top:clamp(4px,.6vw,10px);}
+  #collect .cd{display:inline-flex; align-items:flex-start; gap:10px; font-family:'Inter',sans-serif; font-weight:800; font-variant-numeric:tabular-nums;}
+  #collect .cd .seg{display:inline-flex; flex-direction:column; align-items:center; gap:6px;}
+  #collect .cd .num{font-size:clamp(46px,6vw,82px); line-height:.85;}
+  #collect .cd .colon{font-size:clamp(46px,6vw,82px); line-height:.85;}
+  #collect .cd .unit{font-size:clamp(10px,1vw,14px); font-weight:700; letter-spacing:3px; color:var(--muted);}
   #collect.urgent .cd-row{color:var(--red);}
   #collect .cnt{font-family:'Trirong',Georgia,serif; font-style:italic; font-size:clamp(18px,2vw,26px); color:var(--cream-dim); margin-top:8px; display:inline-block; transition:transform .16s ease;}
   #collect.bump .cnt{transform:scale(1.2);}
@@ -203,7 +207,11 @@
         <circle cx="12" cy="12" r="9"/>
         <path d="M12 7.3 L12 12 L15.2 13.8"/>
       </svg>
-      <span class="cd" id="cd">1:00</span>
+      <span class="cd" id="cd">
+        <span class="seg"><span class="num" id="cdMin">1</span><span class="unit">MIN</span></span>
+        <span class="colon">:</span>
+        <span class="seg"><span class="num" id="cdSec">00</span><span class="unit">SEC</span></span>
+      </span>
     </div>
     <div class="cnt" id="cnt">0 added</div>
     <div class="sub">until the wall reveals</div>
@@ -330,14 +338,14 @@ if(!configured) toast("Supabase not configured — add your keys in config.js. P
 
 // ---- Timer ----
 let timerInt=null, remain=CFG.TIMER_MINUTES*60, running=false;
-const fmt=s=>Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
-$("#cd").textContent=fmt(remain);
+const paintTime=s=>{ s=Math.max(s,0); $("#cdMin").textContent=Math.floor(s/60); $("#cdSec").textContent=String(s%60).padStart(2,"0"); };
+paintTime(remain);
 function startTimer(){
   if(running || phase!=="collect") return;
   running=true; $("#btnStart").classList.remove("pulse");
   $("#btnStart").disabled=true; $("#btnStart").textContent="Collecting…";
   timerInt=setInterval(()=>{
-    remain--; $("#cd").textContent=fmt(Math.max(remain,0));
+    remain--; paintTime(remain);
     $("#collect").classList.toggle("urgent", remain<=10);
     if(remain<=0){ clearInterval(timerInt); reveal(); }
   },1000);

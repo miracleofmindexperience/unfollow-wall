@@ -7,6 +7,10 @@ Notable changes are listed newest first.
 
 ## 2026-06-23
 
+### Timer — labeled MIN / SEC
+**File:** `index.html`
+**Change:** The countdown now shows small "MIN" and "SEC" labels beneath the two numbers (e.g. `1 : 00`), so it's no longer ambiguous whether it's minutes or hours.
+
 ### Session code persists across refreshes
 **File:** `index.html`
 **Change:** The room/session code (and therefore the QR) no longer changes when the wall is refreshed. It is generated once on first open, stored in `localStorage`, and only changes when **New session** is clicked. This prevents orphaning anyone who already scanned. A `?room=` in the URL still overrides.
