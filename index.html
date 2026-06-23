@@ -78,7 +78,10 @@
     position:absolute; inset:0; z-index:10;
     display:flex; flex-wrap:wrap; align-content:center; justify-content:center;
     gap:24px 28px; padding:170px 48px 150px;
+    transition:padding .6s cubic-bezier(.3,.9,.3,1);
   }
+  /* while the big QR is showing, reserve a right gutter so example cards never sit under it */
+  body.collecting #wall{ padding-right:clamp(260px,25vw,370px); }
   .card{
     --rot:0deg;
     font-family:'Inter',sans-serif; font-weight:800;
@@ -275,6 +278,7 @@ new QRCode($("#qr"), { text:submitUrl, width:380, height:380, correctLevel:QRCod
 
 // ---- State ----
 let phase = "collect";          // collect -> revealed -> closed
+document.body.classList.add("collecting");
 const pending = [];
 const seen = new Set();
 const wall = $("#wall");
@@ -342,6 +346,7 @@ function reveal(){
   clearInterval(timerInt); running=false;
   $("#collect").classList.add("gone");
   $("#join").classList.add("small");   // shrink QR now that collection is done
+  document.body.classList.remove("collecting");   // release the right gutter for submissions
   $("#btnReveal").disabled=true; $("#btnStart").disabled=true;
   $("#btnUnfollow").disabled=false; $("#btnUnfollow").classList.add("pulse");
   wall.querySelectorAll(".card").forEach(c=>c.classList.add("fade"));
