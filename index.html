@@ -36,22 +36,24 @@
 
   /* ---- Join / QR (top-right) ---- */
   #join{
-    position:fixed; top:36px; right:46px; z-index:20;
-    display:flex; align-items:center; gap:14px;
-    background:rgba(244,238,227,.05); border:1px solid rgba(228,222,212,.14);
-    border-radius:14px; padding:12px 16px; backdrop-filter:blur(5px);
+    position:fixed; top:34px; right:42px; z-index:20;
+    display:flex; flex-direction:column; align-items:center; gap:14px;
   }
-  #qr{width:104px; height:104px; background:var(--paper); border-radius:8px; padding:6px;}
+  #qr{
+    width:clamp(220px,21vw,300px); height:clamp(220px,21vw,300px);
+    background:var(--paper); border-radius:12px; padding:12px;
+    box-shadow:0 14px 34px rgba(0,0,0,.5);
+    transition:width .6s cubic-bezier(.3,.9,.3,1), height .6s cubic-bezier(.3,.9,.3,1), padding .6s;
+  }
   #qr img,#qr canvas{display:block; width:100%; height:100%;}
-  #join .lbl{font-size:10px; letter-spacing:2.5px; text-transform:uppercase; color:var(--muted); font-weight:600;}
-  #join .code{font-family:'Inter',sans-serif; font-weight:800; font-size:30px; color:var(--cream); letter-spacing:4px; line-height:1.15;}
-  #join .url{font-size:11px; color:var(--muted); margin-top:3px;}
   #joincap{
-    position:fixed; top:176px; right:46px; z-index:20; max-width:250px; text-align:right;
-    font-family:'Trirong',Georgia,serif; font-style:italic; font-size:16px; color:var(--cream-dim); line-height:1.35;
-    transition:opacity .5s;
+    max-width:300px; text-align:center;
+    font-family:'Trirong',Georgia,serif; font-style:italic; font-size:18px; color:var(--cream-dim); line-height:1.35;
+    transition:opacity .5s, max-height .5s, margin .5s;
   }
-  #joincap.gone{opacity:0;}
+  /* once submissions are revealed, shrink the QR to free up the wall */
+  #join.small #qr{width:104px; height:104px; padding:6px; border-radius:8px;}
+  #join.small #joincap{opacity:0; max-height:0; margin:0; overflow:hidden;}
 
   /* ---- MoM logo (bottom-left) ---- */
   #logo{position:fixed; bottom:32px; left:46px; z-index:20;}
@@ -63,8 +65,10 @@
     transition:opacity .5s, transform .5s;
   }
   #collect.gone{opacity:0; transform:translateY(22px); pointer-events:none;}
-  #collect .cd{font-family:'Inter',sans-serif; font-weight:800; font-size:clamp(46px,6vw,82px); color:var(--cream); line-height:1; letter-spacing:1px; font-variant-numeric:tabular-nums;}
-  #collect .cd.urgent{color:var(--red);}
+  #collect .cd-row{display:flex; align-items:center; justify-content:center; gap:16px; color:var(--cream);}
+  #collect .clock{height:clamp(34px,4.4vw,60px); width:auto; flex:none;}
+  #collect .cd{font-family:'Inter',sans-serif; font-weight:800; font-size:clamp(46px,6vw,82px); line-height:1; letter-spacing:1px; font-variant-numeric:tabular-nums;}
+  #collect.urgent .cd-row{color:var(--red);}
   #collect .cnt{font-family:'Trirong',Georgia,serif; font-style:italic; font-size:clamp(18px,2vw,26px); color:var(--cream-dim); margin-top:8px; display:inline-block; transition:transform .16s ease;}
   #collect.bump .cnt{transform:scale(1.2);}
   #collect .sub{font-family:'Inter',sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:3px; font-size:12px; color:var(--muted); margin-top:12px;}
@@ -180,13 +184,8 @@
 
   <div id="join">
     <div id="qr"></div>
-    <div>
-      <div class="lbl">Join &amp; add yours</div>
-      <div class="code" id="roomCode">····</div>
-      <div class="url" id="joinUrl">scan to begin</div>
-    </div>
+    <div id="joincap">Scan to add what you'd like to unfollow</div>
   </div>
-  <div id="joincap">Scan to add what you'd like to unfollow</div>
 
   <div id="logo">
     <img src="https://static.sadhguru.org/d/46272/1739879389-group-1597883432.png" alt="Miracle of Mind">
@@ -196,7 +195,13 @@
   <div id="hint"></div>
 
   <div id="collect">
-    <div class="cd" id="cd">1:00</div>
+    <div class="cd-row">
+      <svg class="clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 7.3 L12 12 L15.2 13.8"/>
+      </svg>
+      <span class="cd" id="cd">1:00</span>
+    </div>
     <div class="cnt" id="cnt">0 added</div>
     <div class="sub">until the wall reveals</div>
   </div>
@@ -265,9 +270,8 @@ function newCode(){
 }
 let room = new URLSearchParams(location.search).get("room") || newCode();
 const submitUrl = new URL("submit.html", location.href).href + "?room=" + room;
-$("#roomCode").textContent = room;
-$("#joinUrl").textContent = new URL(submitUrl).host + " · #" + room;
-new QRCode($("#qr"), { text:submitUrl, width:104, height:104, correctLevel:QRCode.CorrectLevel.M });
+// render the QR at high resolution; CSS controls the displayed size (big while collecting, small after reveal)
+new QRCode($("#qr"), { text:submitUrl, width:380, height:380, correctLevel:QRCode.CorrectLevel.M });
 
 // ---- State ----
 let phase = "collect";          // collect -> revealed -> closed
@@ -327,7 +331,7 @@ function startTimer(){
   $("#btnStart").disabled=true; $("#btnStart").textContent="Collecting…";
   timerInt=setInterval(()=>{
     remain--; $("#cd").textContent=fmt(Math.max(remain,0));
-    $("#cd").classList.toggle("urgent", remain<=10);
+    $("#collect").classList.toggle("urgent", remain<=10);
     if(remain<=0){ clearInterval(timerInt); reveal(); }
   },1000);
 }
@@ -337,6 +341,7 @@ function reveal(){
   if(phase!=="collect") return; phase="revealed";
   clearInterval(timerInt); running=false;
   $("#collect").classList.add("gone");
+  $("#join").classList.add("small");   // shrink QR now that collection is done
   $("#btnReveal").disabled=true; $("#btnStart").disabled=true;
   $("#btnUnfollow").disabled=false; $("#btnUnfollow").classList.add("pulse");
   wall.querySelectorAll(".card").forEach(c=>c.classList.add("fade"));
