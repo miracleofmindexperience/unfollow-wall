@@ -271,7 +271,10 @@ function newCode(){
   const a="ABCDEFGHJKMNPQRSTUVWXYZ23456789";
   return Array.from({length:4},()=>a[Math.floor(Math.random()*a.length)]).join("");
 }
-let room = new URLSearchParams(location.search).get("room") || newCode();
+// Room code persists across refreshes (localStorage). It only changes on the
+// first-ever open or when "New session" is clicked. A ?room= in the URL overrides.
+let room = new URLSearchParams(location.search).get("room") || localStorage.getItem("uw_room") || newCode();
+localStorage.setItem("uw_room", room);
 const submitUrl = new URL("submit.html", location.href).href + "?room=" + room;
 // render the QR at high resolution; CSS controls the displayed size (big while collecting, small after reveal)
 new QRCode($("#qr"), { text:submitUrl, width:380, height:380, correctLevel:QRCode.CorrectLevel.M });
@@ -412,7 +415,11 @@ function showClosing(){
 }
 
 // ---- New session ----
-async function newSession(){ if(sb) await sb.from("submissions").delete().eq("room",room); location.search=""; }
+async function newSession(){
+  if(sb) await sb.from("submissions").delete().eq("room",room);
+  localStorage.setItem("uw_room", newCode());   // fresh code for the next session
+  location.href = location.pathname;            // reload clean; picks up the new stored code
+}
 
 // ---- Controls ----
 const controls=$("#controls"); let hideT=null;

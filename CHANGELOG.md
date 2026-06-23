@@ -7,6 +7,10 @@ Notable changes are listed newest first.
 
 ## 2026-06-23
 
+### Session code persists across refreshes
+**File:** `index.html`
+**Change:** The room/session code (and therefore the QR) no longer changes when the wall is refreshed. It is generated once on first open, stored in `localStorage`, and only changes when **New session** is clicked. This prevents orphaning anyone who already scanned. A `?room=` in the URL still overrides.
+
 ### QR code — larger & scannable from across the room
 **File:** `index.html`
 **Change:** During the collection phase the join QR is now large (up to ~300px, rendered at high resolution) so people can scan it off a projected TV/screen. The moment **Reveal now** / timer-end / **Unfollow All** fires, the QR smoothly shrinks to a small corner badge, freeing the wall for submissions.
