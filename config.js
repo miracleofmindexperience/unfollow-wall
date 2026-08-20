@@ -5,12 +5,11 @@
 
 window.UNFOLLOW_CONFIG = {
 
-  // --- Supabase (required) -------------------------------------------------
-  // Project Settings > API.  The anon key is safe to expose in the browser;
-  // access is controlled by the Row Level Security policies in
-  // supabase-setup.sql.
-  SUPABASE_URL:      "https://aocxxqxeayitffqkxegh.supabase.co",
-  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvY3h4cXhlYXlpdGZmcWt4ZWdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwNDM2MTYsImV4cCI6MjA5NzYxOTYxNn0.vcsle0SKhUwt_quToJh_xJkxFABw7qn0yyia1wkr9vI",
+  // --- Backend (required) --------------------------------------------------
+  // The realtime API that holds the cards and pushes them to the wall.
+  // Deployed on Railway (see backend/main.py). No key needed — the room code
+  // is the only thing gating a wall, and nothing personal is stored.
+  API_BASE: "https://unfollow-wall-production.up.railway.app",
 
   // --- Submission window ---------------------------------------------------
   TIMER_MINUTES: 1,          // collection window; submissions reveal when it ends

@@ -5,6 +5,43 @@ Notable changes are listed newest first.
 
 ---
 
+## 2026-08-20
+
+### Backend moved off Supabase to Railway — the QR was dead because the database was gone
+**Files:** `backend/` (new), `api.js` (new), `config.js`, `index.html`, `submit.html`, `supabase-setup.sql` (removed)
+**Reported as:** "scanning the QR code isn't working."
+**Cause:** The QR and both pages were fine. The Supabase project
+(`aocxxqxeayitffqkxegh.supabase.co`) no longer existed — the hostname didn't even
+resolve. Free-tier projects pause when idle and are eventually torn down, and the
+wall hadn't run since 2026-06-23. Phones reached the submit page, hit "Unfollow it",
+and got "Couldn't send."
+**Change:** Replaced Supabase with a small FastAPI service on Railway (`backend/main.py`)
+— SQLite for the cards, a WebSocket per room for realtime, and a `/health` endpoint.
+Railway services don't idle out, so this failure mode is gone. `config.js` now holds a
+single `API_BASE`; the new `api.js` is the shared client for both pages.
+
+### Wall warns the host when the backend is unreachable
+**File:** `index.html`, `api.js`
+**Change:** The wall pings `/health` on load and watches the WebSocket. If the backend
+can't be reached, a red bar across the top says so — with a **Retry** button — instead of
+the wall sitting there looking normal while the room scans and gets errors. This is the
+check that would have caught the failure above before a session, not during one.
+**Also:** the live feed now reconnects on its own (exponential backoff, capped at 15s), so
+a brief wifi drop mid-session no longer silently stops cards from arriving.
+
+### New session no longer races itself
+**File:** `index.html`
+**Change:** Clearing a room broadcasts a reload to every open wall. "New session" now
+stores the fresh room code *before* clearing, so that reload can't land back on the code
+being retired.
+
+### Docs: host shortcuts corrected
+**File:** `README.md`
+**Change:** The shortcut list said `T` for a 5-minute timer; it's `S` for a 1-minute
+collection window, with `R` to reveal early.
+
+---
+
 ## 2026-06-23
 
 ### Timer — labeled MIN / SEC

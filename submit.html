@@ -84,8 +84,8 @@
     <img src="https://static.sadhguru.org/d/46272/1739879389-group-1597883432.png" alt="Miracle of Mind">
   </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
+<script src="config.js?v=2"></script>
+<script src="api.js?v=2"></script>
 <script>
 const CFG=window.UNFOLLOW_CONFIG, $=s=>document.querySelector(s);
 const room=(new URLSearchParams(location.search).get("room")||"default").toUpperCase();
@@ -107,8 +107,7 @@ $("#room").textContent="#"+room;
 $("#prompt").textContent=CFG.SUBMIT_PROMPT;
 $("#hint").textContent=CFG.SUBMIT_HINT;
 
-const configured=CFG.SUPABASE_URL && !CFG.SUPABASE_URL.includes("PASTE_");
-const sb=configured ? supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_ANON_KEY) : null;
+const configured=UW.configured;
 
 const ta=$("#text");
 ta.addEventListener("input",()=>$("#count").textContent=ta.value.length);
@@ -116,10 +115,15 @@ ta.addEventListener("input",()=>$("#count").textContent=ta.value.length);
 async function send(){
   const text=ta.value.trim(); $("#err").textContent="";
   if(!text){ $("#err").textContent="Type one thing first."; return; }
-  if(!sb){ $("#err").textContent="Not connected — ask the host to set up Supabase."; return; }
+  if(!configured){ $("#err").textContent="Not connected — ask the host to set the backend URL."; return; }
   $("#send").disabled=true; $("#send").textContent="Sending…";
-  const {error}=await sb.from("submissions").insert({room,text});
-  if(error){ $("#err").textContent="Couldn't send. Try again."; $("#send").disabled=false; $("#send").textContent="Unfollow it"; return; }
+  try{
+    await UW.add(room,text);
+  }catch(e){
+    $("#err").textContent="Couldn't send. Try again.";
+    $("#send").disabled=false; $("#send").textContent="Unfollow it";
+    return;
+  }
   $("#form").classList.add("hide"); $("#done").classList.add("show");
 }
 $("#send").onclick=send;
