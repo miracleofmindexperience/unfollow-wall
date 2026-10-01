@@ -24,16 +24,10 @@ window.UNFOLLOW_CONFIG = {
   ],
 
   // --- Closing sequence (shown after "Unfollow All") -----------------------
-  // Three beats fade in one after another, then the wall is ready to reset.
+  // One line, then the Miracle of Mind logo. Nothing else on the wall.
   CLOSING: {
-    line1: "If only it were that easy to let go.",
-    line2: "What if it actually is?",
-    line3: "Let's experience",   // followed by the Miracle of Mind logo on the wall
+    line: "If only it were that easy.",
   },
-
-  // Alternate closing lines (swap into CLOSING above if you prefer):
-  //   "What if your mind could feel this light too?"
-  //   "Creating space from all of this is simpler than you think."
 
   // --- Prompt shown on the phone submit page -------------------------------
   SUBMIT_PROMPT: "What would you like to unfollow today?",

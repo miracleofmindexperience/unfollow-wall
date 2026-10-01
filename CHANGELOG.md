@@ -5,6 +5,20 @@ Notable changes are listed newest first.
 
 ---
 
+## 2026-10-01
+
+### Closing sequence cut to one line
+**Files:** `index.html`, `config.js`
+**Requested by:** Lavanya (Isha), 2026-10-01 — "remove all the text and keep only
+'If only it were that easy.' and the MoM logo after we clear the wall."
+**Change:** The three-beat close is gone. After **Unfollow All** scatters the cards the
+wall now shows a single line — "If only it were that easy." — followed by the Miracle of
+Mind logo, and nothing else. Dropped "What if it actually is?" and "Let's experience"
+along with their markup and styles; `CLOSING` in `config.js` is now a single `line`.
+The logo follows at 2.6s instead of 7.1s, since there are no longer two beats to wait on.
+
+---
+
 ## 2026-08-20
 
 ### Backend moved off Supabase to Railway — the QR was dead because the database was gone
