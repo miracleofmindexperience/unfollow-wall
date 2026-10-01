@@ -7,6 +7,14 @@ Notable changes are listed newest first.
 
 ## 2026-10-01
 
+### Closing line breaks after "were", on purpose
+**Files:** `index.html`, `config.js`
+**Change:** The line was breaking as "IF ONLY IT WERE THAT / EASY.", stranding one word.
+That wasn't deliberate — `#cl1` had `max-width:16ch` left over from the longer original
+line, and the browser simply wrapped where it ran out. The break is now explicit: a `\n`
+in `CLOSING.line` plus `white-space:pre-line`, giving "IF ONLY IT WERE / THAT EASY." so
+the phrase "that easy" stays together. `max-width` relaxed to 20ch as a safety net only.
+
 ### Logo back on the closing page, line enlarged
 **File:** `index.html`
 **Requested by:** Lavanya (Isha) — wants the Miracle of Mind logo on the closing page,

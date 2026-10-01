@@ -25,8 +25,10 @@ window.UNFOLLOW_CONFIG = {
 
   // --- Closing sequence (shown after "Unfollow All") -----------------------
   // One line, then the Miracle of Mind logo, on an otherwise empty wall.
+  // The \n is a deliberate line break — it keeps "that easy" together instead of
+  // letting the browser strand "easy." on its own line. Keep it if you edit the text.
   CLOSING: {
-    line: "If only it were that easy.",
+    line: "If only it were\nthat easy.",
   },
 
   // --- Prompt shown on the phone submit page -------------------------------
