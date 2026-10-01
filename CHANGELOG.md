@@ -7,7 +7,17 @@ Notable changes are listed newest first.
 
 ## 2026-10-01
 
-### The close is now just the line, on an empty screen
+### Logo back on the closing page, line enlarged
+**File:** `index.html`
+**Requested by:** Lavanya (Isha) — wants the Miracle of Mind logo on the closing page,
+with more space above it and a larger line.
+**Change:** The centred logo is back beneath the closing line. The line grew from
+`clamp(34px,4.4vw,58px)` to `clamp(42px,5.6vw,74px)` (~72px on a 720p screen, up from
+~56px), the gap between line and logo went from 38px to 66px, and the logo is slightly
+larger at `clamp(58px,7.4vw,102px)`. The rest of the wall chrome stays hidden, so the
+screen holds the line and the logo only — matching Lavanya's original request.
+
+### The close was briefly just the line, on an empty screen
 **Files:** `index.html`, `config.js`
 **Change:** The centred Miracle of Mind logo that followed the closing line is gone, and
 the wall's own chrome — title, QR badge, corner logo, hint — now fades out with the cards.
