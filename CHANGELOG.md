@@ -7,6 +7,13 @@ Notable changes are listed newest first.
 
 ## 2026-10-01
 
+### MoM logo removed from the close
+**Files:** `index.html`, `config.js`
+**Change:** The centred Miracle of Mind logo that followed the closing line is gone too.
+After **Unfollow All** the wall shows the single line and nothing else. (The small logo in
+the wall's bottom-left corner is separate chrome and still shows faintly through the
+closing overlay.)
+
 ### Closing sequence cut to one line
 **Files:** `index.html`, `config.js`
 **Requested by:** Lavanya (Isha), 2026-10-01 — "remove all the text and keep only

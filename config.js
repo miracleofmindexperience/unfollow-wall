@@ -24,7 +24,7 @@ window.UNFOLLOW_CONFIG = {
   ],
 
   // --- Closing sequence (shown after "Unfollow All") -----------------------
-  // One line, then the Miracle of Mind logo. Nothing else on the wall.
+  // One line on an otherwise empty wall. Nothing follows it.
   CLOSING: {
     line: "If only it were that easy.",
   },
